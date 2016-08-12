@@ -1,5 +1,7 @@
 # CoolNestedForms
-Add nested form fields to any form for adding items without refreshing the page
+Add Nested Forms to your Forms. Currently tested with a depth of 2.
+For example a Form can add an Item and this Item can add a sub Item.
+It can probably support longer nests but I haven't tested it yet.
 
 ## Installation
 
@@ -19,7 +21,7 @@ Or install it yourself as:
 
 ## Usage
 
-
+Will update with usage later
 
 ## Development
 

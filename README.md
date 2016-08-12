@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 # CoolNestedForms
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cool_nested_forms`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Add nested form fields to any form for adding items without refreshing the page
 
 ## Installation
 
@@ -23,7 +19,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
 
 ## Development
 
@@ -39,8 +35,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
-=======
-# cool_nested_forms
-Add nested form fields to any form for adding items without refreshing the page
->>>>>>> efb6ab9c35bbef369c90275cf43cb1f6502470da

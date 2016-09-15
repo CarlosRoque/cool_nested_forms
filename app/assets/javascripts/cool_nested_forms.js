@@ -23,12 +23,14 @@ $(function(){
         Dest.append(child_script_tag.replace(regexp_child_template, "_" + new_id + "_"));
       }
     }
+    $(document).trigger('coolNestedForms.childAdded');
     return false;
   });
 
   $(document).delegate('.remove_child','click', function() {
     $(this).parent().children('.removable')[0].value = 1;
     $(this).parent().hide();
+    $(document).trigger('coolNestedForms.childRemoved');
     return false;
   });
 });

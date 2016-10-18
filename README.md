@@ -17,7 +17,7 @@ gem 'cool_nested_forms'
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 Or install it yourself as:
 
@@ -29,7 +29,7 @@ Then require the javascript in your app/assets/javascripts/application.js
 ```
 
 ## Usage Example
-Form this example we will use Job and Task models
+For this example I will use Job and Task models
 
 ### Preparing your models
 
@@ -61,7 +61,7 @@ class JobsController < ApplicationController
 end
 ```
 ### The view used to generate tasks
-Due to lazyness remove_child_button needs to be nested right under the containing div. this will be fixed in the next version.
+Due to laziness remove_child_button needs to be nested right under the containing div. this will be fixed in the next version.
 app/views/jobs/_task.html.rb
 ```html
 <div>

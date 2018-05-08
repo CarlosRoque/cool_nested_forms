@@ -10,7 +10,7 @@ $(function(){
     var regexp_parent_new_field = new RegExp('new_' + association, 'g');
     var new_id = new Date().getTime();
     var Dest = (target == '') ? $(this).parent() : $('#'+target);
-    Dest.append(window[ template +'_fields'].replace(regexp, new_id).replace(regexp2, new_id));
+    Dest.append(window[ template ].replace(regexp, new_id).replace(regexp2, new_id));
     for(var index in child_templates)
     {
       child_template = child_templates[index];

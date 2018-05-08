@@ -2,8 +2,8 @@ module CoolNestedFormsHelper
 
     def new_fields_template(f,association,options={})
       options[:object] ||= f.object.class.reflect_on_association(association).klass.new
-      options[:partial] ||= association.to_s.singularize+"_fields"
-      options[:template] ||= association.to_s+"_fields"
+      options[:partial] ||= association.to_s.singularize
+      options[:template] ||= association.to_s
       options[:child_template_options] ||= []
       options[:f] ||= f
 
@@ -14,13 +14,13 @@ module CoolNestedFormsHelper
             options[:child_template_options].each do |child|
               child_tmpl += new_fields_template(b,child[:association],child)
             end
-            child_tmpl = child_tmpl.gsub /\r?\n|\r/, ' '
+            child_tmpl = child_tmpl.gsub( /\r?\n|\r/, ' ')
           end
           render(:partial=>options[:partial],:locals =>{:f => b})
         end
       end
 
-      tmpl = tmpl.gsub /\r?\n|\r/, ' '
+      tmpl = tmpl.gsub( /\r?\n|\r/, ' ')
       script = "<script> var #{options[:template]} = '#{tmpl.to_s}'; </script>"
       script += child_tmpl
       return script.html_safe

@@ -1,3 +1,3 @@
 module CoolNestedForms
-  VERSION = "0.1.3"
+  VERSION = "1.0.2"
 end

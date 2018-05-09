@@ -1,5 +1,5 @@
 $(function(){
-  $(document).delegate('.cnf-add-entry','click', function() {
+  $(document).on('click', '.cnf-add-entry', function() {
     // initialize options
     var association = $(this).attr('data-association');
     var jsTemplateName = $(this).attr('data-js-template-name');
@@ -10,65 +10,62 @@ $(function(){
     var associationNewRegEx = new RegExp('new_' + association, 'g');
     var tempIdRegEx = new RegExp('\\[tempid\\]', 'g');
     var childTempIdRegEx = new RegExp('_tempid_', 'g');
-    // var regexp_parent_new_field = new RegExp('new_' + association, 'g');
 
+    // create a temporary id
     var newId = new Date().getTime();
 
-    var Dest = (target == '') ? $(this).parent() : $('#'+target);
+    // select where to append the new element
+    var container = (target == '') ? $(this).parent() : $('#'+target);
 
-    Dest.append(window[ jsTemplateName ].replace(associationNewRegEx, newId).replace(tempIdRegEx, newId));
-    for(var index in childTemplates)
-    {
+    // append the new emelent andreplace all temp_ids
+    container.append(window[ jsTemplateName ].replace(associationNewRegEx, newId).replace(tempIdRegEx, newId));
+
+    // parse any child templates
+    for(var index in childTemplates) {
+
       childTemplate = childTemplates[index];
-      if(childTemplate != "")
-      {
+
+      if(childTemplate != ""){
+        // get the template
         body = window[childTemplate];
+        // generate the script tag
         child_script_tag = "<script> var " + childTemplate + " = '" + body + "'  </script>";
+        // substitute all the temp ids
         child_script_tag = child_script_tag.replace(childTempIdRegEx, "_" + newId + "_")
                             .replace(associationNewRegEx, newId);
-        Dest.append(child_script_tag.replace(childTempIdRegEx, "_" + newId + "_"));
+        // append the child script tag to the target container
+        // this generates a new script tag associated to the element created
+        // before this loop
+        container.append(child_script_tag.replace(childTempIdRegEx, "_" + newId + "_"));
       }
     }
+    // trigger event coolNestedForms.entryAdded
     $(document).trigger('coolNestedForms.entryAdded');
+    // false to avoid errors
     return false;
   });
-
-
-});
-
-$(function(){
-  $(document).delegate('.add_child','click', function() {
-    var association = $(this).attr('data-association');
-    var template = $(this).attr('data-association-template');
-    var child_templates = $(this).attr('data-child-template').split(' ');
-    var target = $(this).attr('target');
-    var regexp = new RegExp('new_' + association, 'g');
-    var regexp2 = new RegExp('\\[tempid\\]', 'g');
-    var regexp_child_template = new RegExp('_tempid_', 'g');
-    var regexp_parent_new_field = new RegExp('new_' + association, 'g');
-    var new_id = new Date().getTime();
-    var Dest = (target == '') ? $(this).parent() : $('#'+target);
-    Dest.append(window[ template ].replace(regexp, new_id).replace(regexp2, new_id));
-    for(var index in child_templates)
-    {
-      child_template = child_templates[index];
-      if(child_template != "")
-      {
-        body = window[child_template];
-        child_script_tag = "<script> var " + child_template + " = '" + body + "'  </script>";
-        child_script_tag = child_script_tag.replace(regexp_child_template, "_" + new_id + "_")
-                            .replace(regexp_parent_new_field, new_id);
-        Dest.append(child_script_tag.replace(regexp_child_template, "_" + new_id + "_"));
-      }
+  $(document).on('click', '.cnf-remove-entry', function() {
+    // get the target attribute. this is the target entry container.
+    var target = $(this).attr('data-target');
+    // initialize the container
+    var container = "";
+    // target provided?
+    if(target == ""){
+      // default to the parent container
+      container = $(this).parent();
     }
-    $(document).trigger('coolNestedForms.childAdded');
+    else {
+      // use the target provided
+      container = $('#' + target);
+    }
+    // update the hidden field that sets the record for removal
+    container.find('.cnf-removable')[0].value = 1;
+    // hide the container for user feedback
+    container.hide();
+    // trigger event coolNestedForms.entryRemoved
+    $(document).trigger('coolNestedForms.entryRemoved');
+    // false to avoid errors
     return false;
   });
 
-  $(document).delegate('.remove_child','click', function() {
-    $(this).parent().children('.removable')[0].value = 1;
-    $(this).parent().hide();
-    $(document).trigger('coolNestedForms.childRemoved');
-    return false;
-  });
 });

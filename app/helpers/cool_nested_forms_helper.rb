@@ -12,10 +12,10 @@ module CoolNestedFormsHelper
   #   - children: an array with childre association options for nested association of a nested association
   def new_entry_template(builder,association, options = {})
     # initialize options
-    options[:partial] ||= association.name.snakecase
-    options[:id] ||= "#{association.name.snakecase}_[tempid]"
-    options[:pluralized] ||= association.name.snakecase.pluralize
-    options[:js_template_name] ||= association.name.snakecase.pluralize
+    options[:partial] ||= association.name.underscore
+    options[:id] ||= "#{association.name.underscore}_[tempid]"
+    options[:pluralized] ||= association.name.underscore.pluralize
+    options[:js_template_name] ||= association.name.underscore.pluralize
     options[:children] ||= []
 
     # children output
@@ -60,14 +60,14 @@ module CoolNestedFormsHelper
   #   - tag: override the returned tag
   #   - tag_content: override the returned tag content
   def new_entry_button(name, association, options = {})
-    options[:pluralized] ||= association.name.snakecase.pluralize
-    options[:js_template_name] ||= association.name.snakecase.pluralize
+    options[:pluralized] ||= association.name.underscore.pluralize
+    options[:js_template_name] ||= association.name.underscore.pluralize
     options[:class] ||= ""
     options[:style] ||= ""
     options[:child_js_template_names] ||= ""
     options[:tag] ||= :span
     options[:tag_content] ||= "<span>#{name}</span>"
-    options[:target] ||= association.name.snakecase.pluralize
+    options[:target] ||= association.name.underscore.pluralize
 
     return content_tag(options[:tag],
       options[:tag_content].html_safe,

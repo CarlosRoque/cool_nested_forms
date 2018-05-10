@@ -1,11 +1,16 @@
 # CoolNestedForms
 [![Gem Version](https://badge.fury.io/rb/cool_nested_forms.svg)](https://badge.fury.io/rb/cool_nested_forms)        
 
-Add Nested Forms to your Forms. Currently tested with a depth of 2.
-For example a Form can add an Item and this Item can add a sub Item.
-It can probably support longer nests but I haven't tested it yet.
+Add dynamically generated forms to your model's form for any of its associations.
+For example if you have a Job model that has_many Task then this gem will assist you in adding
+all the JavaScript necessary to allow your users to click an "Add Task" button on your edit view,
+the view will then append a new form to the DOM with all the field attributes formatted for
+rails (id, name, etc) plus will add any necessary hidden fields for existing records (task.id).  
 
-By the way, this is intended to simplify adding the javascript required to add form_field dynamically while following form builder conventions. What that means is that there is some work to be done in the form of configuring models and controllers and adding a couple of views.
+There is also JS events raised when an entry is added or removed so you can hook up your code for
+pre-form submission editing.
+
+Any entries added or removed won't update the DB until the form is submitted.
 
 ## Installation
 
@@ -23,7 +28,7 @@ Or install it yourself as:
 
     $ gem install cool_nested_forms
 
-Then require the javascript in your app/assets/javascripts/application.js
+Then require the JavaScript in your app/assets/javascripts/application.js
 ```javascript
 //= require cool_nested_forms
 ```
@@ -35,22 +40,25 @@ For this example I will use Job and Task models
 
 #### Job Model
 ```ruby
-class Job < ActiveRecord::Base
+class Job < ApplicationRecord
   has_many :tasks, :dependent => :destroy
-  # :name is required - User your own required field here
+  # we need to accepts_nested_attributes_for Task
+  # :name is required in this example - Use your own required field here or remove the reject_if call
+  # :allow_destroy => true so we can delete entries when passing the _destroy field
   accepts_nested_attributes_for :tasks, :reject_if => lambda { |a| a[:name].blank? }, :allow_destroy => true
 end
 ```
 #### Task Model
 ```ruby
-class Task < ActiveRecord::Base
+class Task < ApplicationRecord
   belongs_to :job
 end
 ```
 ### Preparing the Job Controller
 ```ruby
 class JobsController < ApplicationController
-
+  # include the CoolNestedFormsHelper
+  helper CoolNestedFormsHelper
   # other code #
 
   def job_params
@@ -60,47 +68,75 @@ class JobsController < ApplicationController
   end
 end
 ```
-### The view used to generate tasks
-Due to laziness remove_child_button needs to be nested right under the containing div. this will be fixed in the next version.
-app/views/jobs/_task.html.rb
-```html
-<div>
-  <%= remove_child_button "Remove" %>
-  <%= f.hidden_field :_destroy, :class => 'removable' %>
+### The partials used to generate the new and existing tasks
+We need to provide cool_nested_forms two partials. One for existing records and one
+for existing records. They will be placed under the Job's view folder. Make sure the
+id field of the container is set like so: id="<%= id %>"  
 
-  <%= f.label :name %>
-  <%= f.text_field :name %>
+app/views/jobs/_task_new.html.rb
+```erb
+<!--  the id is generated from the helper methods using this template so always include it like so -->
+<div id="<%= id %>">
+  <!-- _destroy field: used for removing the record -->
+  <%= builder.hidden_field :_destroy, :class => 'cnf-removable' %>
+
+  <!-- data to be collected -->
+  <%= builder.label :name %>
+  <%= builder.text_field :name %>
+
+  <!--  the remove button. make sure to pass the id as target or
+   it will default to the parent DOM element when removing the item -->
+  <%= remove_entry_button "Remove", Task, {:target => id} %>
+</div>
+```
+app/views/jobs/_task_edit.html.rb
+```erb
+<!--  the id is generated from the helper methods using this template so always include it like so -->
+<div id="<%= id %>">
+  <!-- _destroy field: used for removing the record -->
+  <%= builder.hidden_field :_destroy, :class => 'cnf-removable' %>
+  <%= builder.hidden_field :id %> <!-- keeps the id inside this div  -->
+
+  <!-- data to be edited -->
+  <%= builder.label :name %>
+  <%= builder.text_field :name %>
+  <!-- Note: if you not wish for your users to edit this field after it is added
+  you could just display the content. -->
+
+  <!--  the remove button. make sure to pass the id as target or
+   it will default to the parent DOM element when removing the item -->
+  <%= remove_entry_button "Remove", Task, {:target => id} %>
 </div>
 ```
 
 ## Adding functionality to the Job form
 app/views/jobs/_form.html.erb
 ```html
-  <%= form_for(@job) do |f| %>
-
+  <%= form_with(model: job, local: true) do |form| %>
 
     <!-- your other job fields go here -->
 
+    <!-- this generates a template for JavaScript. Pass the Task model class here. -->  
+    <%= new_entry_template(form,Task) %>
 
-    <!-- this generates a template for javascript -->  
-    <%= new_fields_template f, :tasks, {object: Tasks.new, :template => "tasks_#{f.object.id}_fields"} %>  
-    <!-- this generates a button that adds a task into    <div id="tasks_<%=f.object.id%>"> -->  
-    <%= add_child_button "Add Task", :tasks, "tasks_#{f.object.id}", "tasks_#{f.object.id}", "<your-css-classes>" %>  
+    <!-- this generates a button that adds a task into   <div id="tasks">. id="tasks"
+    is automatically generated by the next helper by convention. Pass the Task model class here. -->  
+    <%= new_entry_button("Add Task", Task )%>
 
-    <div id="tasks_<%=f.object.id%>">
-      <%= f.fields_for :tasks, @job.tasks do |builder| %>
-        <%= render "task", :f => builder %>
-      <% end %>
-    </div>
+    <!-- generates a container with any existing tasks. provides a location for
+    placing new tasks. The id of the container is by default  <div id="tasks">
+    (the association plural form). Pass the Task model class here. -->
+    <%= entries_container(form,Task,job.tasks) %>
 
   <%end%>
 ```
 
 ### After add/remove events
-If you need to perform any other javascript actions after a child is added or removed, you can add a listener to these events
+If you need to perform any other javascript actions after an entry is added or
+removed, you can add a listener to these events
 ```javascript
-coolNestedForms.childAdded
-coolNestedForms.childRemoved
+coolNestedForms.entryAdded
+coolNestedForms.entryRemoved
 ```
 Something like this
 ```javascript

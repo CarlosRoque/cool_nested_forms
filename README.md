@@ -111,7 +111,7 @@ app/views/jobs/_task_edit.html.rb
 
 ## Adding functionality to the Job form
 app/views/jobs/_form.html.erb
-```html
+```erb
   <%= form_with(model: job, local: true) do |form| %>
 
     <!-- your other job fields go here -->

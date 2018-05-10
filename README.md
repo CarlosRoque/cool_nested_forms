@@ -69,7 +69,7 @@ class JobsController < ApplicationController
 end
 ```
 ### The partials used to generate the new and existing tasks
-We need to provide cool_nested_forms two partials. One for existing records and one
+We need to provide cool_nested_forms two partials. One for new and one
 for existing records. They will be placed under the Job's view folder. Make sure the
 id field of the container is set like so: id="<%= id %>"  
 
